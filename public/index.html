@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style>
+        body {
+            margin: 15px;
+            font-family: sans-serif
+        }
+
+        h3 {
+            padding: 0;
+            margin: 0;
+            margin-bottom: 1rem;
+        }
+
+        #chat {
+            background: rgb(245, 245, 245);
+            height: 200px;
+            width: calc(100% - 20px);
+            max-width: 620px;
+            border: 1px solid gray;
+            margin-bottom: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            overflow-y: scroll;
+        }
+
+        #controls {
+            display: grid;
+            width: calc(100%);
+            max-width: 642px;
+            grid-template-columns: 25% 55% 20%;
+        }
+
+        #controls input {
+            padding: 8px 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="chat"></div>
+    <form autocomplete="off">
+        <div id="controls">
+            <input type="text" id="username" placeholder="Usuario" />
+            <input type="text" id="content" placeholder="Mensaje" />
+            <input type="submit" value="Enviar" />
+        </div>
+    </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+        var socket = io();
+
+        // capturamos la señal de bienvenida
+        $(function () {
+            socket.on('bienvenida', function () {
+                $("#chat")
+                    .empty()
+                    .append("<h3>Bienvenido al chat de Emeltec!</h3>")
+            })
+
+            var form = $("form").on("submit", function (e) {
+                e.preventDefault()
+                var message = {
+                    name: $("#username").val().trim(),
+                    content: $("#content").val().trim()
+                }
+                //console.log(message)
+                if (message.name.length > 0 && message.content.length > 0) {
+                    socket.emit("nuevo_mensaje", message)
+                    $("#username").attr("disabled", "disabled")
+                    $("#content").val("").focus()
+                }
+
+            })
+
+            socket.on('difundir_mensaje', (message) => {
+                $("#chat")
+                    .append(`<b>${special(message.name)}</b> ${special(message.content)}<br>`)
+            })
+        })
+        // para reemplazar caracteres especiales y evitar ser hackeados
+        function special(str) {
+            str = str.replace(/</gi, '&lt;')
+            str = str.replace(/>/gi, '&gt;')
+            return str
+        }
+    </script>
+</body>
+
+</html>
