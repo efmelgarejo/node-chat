@@ -15,6 +15,6 @@ io.on('connection', (socket) => {
 
 app.use(express.static(__dirname + '/public'))
 
-var server = http.listen(3000, () => {
-    console.log("Servidor en el puerto http://127.0.0.1:3000/")
+var server = http.listen(process.env.PORT || 3000, () => {
+    console.log("Servidor en el puerto http://127.0.0.1:" + server.addres().port)
 })
